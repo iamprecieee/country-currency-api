@@ -398,10 +398,6 @@ No complex queue system needed yet. If server crashes during refresh, just trigg
 ```
 country_api/
 ├── src/
-│   ├── api/             
-│   │   ├── mod.rs
-│   │   ├── countries.rs  
-│   │   └── exchange.rs  
 │   ├── db/
 │   │   ├── mod.rs
 │   │   ├── pool.rs
@@ -418,6 +414,8 @@ country_api/
 │   ├── utils/
 │   │   ├── mod.rs
 │   │   ├── config.rs
+│   │   ├── countries.rs  
+│   │   ├── exchange.rs  
 │   │   └── image.rs     
 │   ├── api.rs            
 │   ├── lib.rs

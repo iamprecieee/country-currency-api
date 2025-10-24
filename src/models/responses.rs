@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 
-use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
@@ -36,7 +35,7 @@ pub struct RefreshResponse {
 #[derive(Debug, Serialize)]
 pub struct StatusResponse {
     pub total_countries: i64,
-    pub last_refreshed_at: DateTime<Utc>,
+    pub last_refreshed_at: String,
 }
 
 #[derive(Debug, Serialize)]
