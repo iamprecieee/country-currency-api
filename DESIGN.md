@@ -50,7 +50,7 @@ Return results
 
 ```sql
 CREATE TABLE countries (
-    id CHAR(36) PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL UNIQUE,
     capital VARCHAR(255),
     region VARCHAR(100),
@@ -72,7 +72,7 @@ CREATE TABLE countries (
 
 ```rust
 struct Country {
-    id: String,
+    id: i32,
     name: String,
     capital: Option,
     region: Option,
