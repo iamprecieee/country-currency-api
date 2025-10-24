@@ -1,0 +1,10 @@
+[package]
+name = "currency_exchange_api"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+
+
+[[bin]]
+name = "currency_exchange_api"
