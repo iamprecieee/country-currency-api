@@ -17,8 +17,6 @@ COPY src/ ./src/
 
 COPY assets ./assets
 
-COPY cache ./cache
-
 ENV SQLX_OFFLINE=true
 
 RUN cargo build --release --bin currency_exchange_api
