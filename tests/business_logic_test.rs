@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use currency_exchange_api::utils::task::{calculate_gdp, process_currency_and_gdp};
+use currency_exchange_api::utils::countries::{calculate_gdp, process_currency_and_gdp};
 
 #[test]
 fn test_gdp_calculation_random_range() {

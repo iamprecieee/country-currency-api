@@ -5,6 +5,7 @@ use axum::{
     http::Response,
     response::IntoResponse,
 };
+use chrono::Utc;
 use reqwest::StatusCode;
 use serde_json::json;
 
@@ -16,7 +17,8 @@ use crate::{
         state::AppState,
     },
     utils::{
-        countries::CountriesApiClient, exchange::ExchangeApiClient, task::refresh_countries_task,
+        clients::{CountriesApiClient, ExchangeApiClient},
+        tasks::{generate_image_task, refresh_countries_task},
     },
 };
 
@@ -40,9 +42,7 @@ pub async fn refresh_countries(State(state): State<AppState>) -> impl IntoRespon
             StatusCode::SERVICE_UNAVAILABLE,
             Json(ApiError::with_details(
                 "External data source unavailable".to_string(),
-                serde_json::json!({
-                    "details": "Could not fetch data from restcountries API"
-                }),
+                "Could not fetch data from restcountries API".into(),
             )),
         )
             .into_response();
@@ -62,15 +62,23 @@ pub async fn refresh_countries(State(state): State<AppState>) -> impl IntoRespon
     }
 
     tokio::spawn(async move {
+        let timestamp = Utc::now();
+
         match refresh_countries_task(
-            state.repository,
+            state.repository.clone(),
             countries_data.unwrap(),
             exchange_rate_data.unwrap(),
+            timestamp,
         )
         .await
         {
             Ok(_) => tracing::info!("Refresh completed successfully"),
             Err(e) => tracing::error!("Refresh failed: {:?}", e),
+        }
+
+        match generate_image_task(state.repository.clone(), timestamp).await {
+            Ok(_) => tracing::info!("Image generated successfully"),
+            Err(e) => tracing::error!("Failed to generate summary image: {:?}", e),
         }
     });
 
@@ -89,7 +97,6 @@ pub async fn refresh_countries(State(state): State<AppState>) -> impl IntoRespon
     params(CountryFilters),
     responses(
         (status = 200, description = "List of countries matching filters", body = [Country]),
-        (status = 400, description = "Bad request - Invalid query parameters", body = ApiError),
         (status = 500, description = "Internal server error", body = ApiError)
     ),
     tag = "Countries"

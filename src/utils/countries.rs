@@ -1,28 +1,42 @@
-use std::time::Duration;
+use std::collections::HashMap;
 
-use reqwest::{Client, Error};
+use rand::random_range;
 
-use crate::models::responses::CountryResponse;
+use crate::models::responses::Currency;
 
-pub struct CountriesApiClient {
-    client: Client,
-    api_url: String,
+pub fn process_currency_and_gdp(
+    currencies: Option<&Vec<Currency>>,
+    population: i64,
+    rates: &HashMap<String, f64>,
+) -> (Option<String>, Option<f64>, Option<f64>) {
+    if currencies.is_none() || currencies.unwrap().is_empty() {
+        return (None, None, Some(0.0));
+    }
+
+    let currencies = currencies.unwrap();
+    let first_currency = &currencies[0];
+
+    let currency_code = match &first_currency.code {
+        Some(code) => code.clone(),
+        None => return (None, None, Some(0.0)),
+    };
+
+    match rates.get(&currency_code) {
+        Some(rate) => {
+            let estimated_gdp = calculate_gdp(population, *rate);
+
+            (Some(currency_code), Some(*rate), estimated_gdp)
+        }
+        None => (Some(currency_code), None, None),
+    }
 }
 
-impl CountriesApiClient {
-    pub fn new(api_url: String) -> Self {
-        let client = Client::builder()
-            .timeout(Duration::from_secs(30))
-            .build()
-            .expect("Failed to create HTTP client");
-
-        Self { client, api_url }
+pub fn calculate_gdp(population: i64, exchange_rate: f64) -> Option<f64> {
+    if exchange_rate == 0.0 {
+        return None;
     }
 
-    pub async fn fetch_all_countries(&self) -> Result<Vec<CountryResponse>, Error> {
-        let response = self.client.get(&self.api_url).send().await?;
-        let countries = response.json::<Vec<CountryResponse>>().await?;
+    let multiplier = random_range(1000.0..=2000.0);
 
-        Ok(countries)
-    }
+    Some((population as f64 * multiplier) / exchange_rate)
 }
