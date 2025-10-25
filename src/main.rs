@@ -22,12 +22,13 @@ async fn main() -> Result<()> {
     .await?;
     tracing::info!("Database connection pool created");
 
+    let address = format!("{}:{}", config.server_host, &config.server_port);
+
     let repository = CountryRepository::new(pool);
-    let state = AppState { repository };
+    let state = AppState { repository, config };
 
     let app = build_router(state);
 
-    let address = format!("{}:{}", config.server_host, config.server_port);
     let listener = TcpListener::bind(&address).await?;
     tracing::info!("Server running on {}", address);
 

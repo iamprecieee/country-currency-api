@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use utoipa::ToSchema;
 
 #[derive(Debug, Deserialize)]
 pub struct CountryResponse {
@@ -38,7 +39,7 @@ pub struct StatusResponse {
     pub last_refreshed_at: String,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, ToSchema)]
 pub struct ApiError {
     pub error: String,
     #[serde(skip_serializing_if = "Option::is_none")]

@@ -59,8 +59,9 @@ impl CountryRepository {
         );
 
         if let Some(region) = &filters.region {
-            query.push(" AND LOWER(region) = LOWER(?)");
+            query.push(" AND LOWER(region) = LOWER(");
             query.push_bind(region);
+            query.push(")");
         }
 
         if let Some(currency) = &filters.currency {
@@ -70,8 +71,8 @@ impl CountryRepository {
         }
 
         match filters.sort.as_deref() {
-            Some("gdp_asc") => query.push(" ORDER BY estimated_gdp ASC"),
-            Some("gdp_desc") | _ => query.push(" ORDER BY estimated_gdp DESC"),
+            Some("asc") => query.push(" ORDER BY estimated_gdp ASC"),
+            Some("desc") | _ => query.push(" ORDER BY estimated_gdp DESC"),
         };
 
         let rows = query
