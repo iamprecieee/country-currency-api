@@ -1,0 +1,24 @@
+{
+  "db_name": "MySQL",
+  "query": "\n            SELECT MAX(last_refreshed_at) as last_refresh\n            FROM countries\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "last_refresh",
+        "type_info": {
+          "type": "Timestamp",
+          "flags": "",
+          "max_size": 76
+        }
+      }
+    ],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": [
+      true
+    ]
+  },
+  "hash": "9a70c22a49c4ca097c143e8df489e38b28398d439ceb1799c50cbae8a4bc2560"
+}

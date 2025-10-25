@@ -11,7 +11,11 @@ WORKDIR /app
 
 COPY Cargo.toml ./
 
+COPY .sqlx ./.sqlx
+
 COPY src/ ./src/
+
+ENV SQLX_OFFLINE=true
 
 RUN cargo build --release --bin currency_exchange_api
 

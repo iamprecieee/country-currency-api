@@ -1,0 +1,12 @@
+{
+  "db_name": "MySQL",
+  "query": "\n            INSERT INTO countries (id, name, capital, region, population, currency_code, \n                                   exchange_rate, estimated_gdp, flag_url, last_refreshed_at)\n            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)\n            ON DUPLICATE KEY UPDATE\n                capital = VALUES(capital),\n                region = VALUES(region),\n                population = VALUES(population),\n                currency_code = VALUES(currency_code),\n                exchange_rate = VALUES(exchange_rate),\n                estimated_gdp = VALUES(estimated_gdp),\n                flag_url = VALUES(flag_url),\n                last_refreshed_at = VALUES(last_refreshed_at)\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 10
+    },
+    "nullable": []
+  },
+  "hash": "54d3c88e7311362d4951a98bdb1e73c1014028f9ca4a7805bddf6e63341d0c97"
+}
