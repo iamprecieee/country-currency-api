@@ -1,4 +1,3 @@
-use anyhow::Error;
 use bigdecimal::BigDecimal;
 use chrono::{DateTime, SecondsFormat, Utc};
 use sqlx::{QueryBuilder, query};
@@ -18,37 +17,50 @@ impl CountryRepository {
         Self { pool }
     }
 
-    pub async fn insert_or_update(&self, country: &Country) -> Result<(), Error> {
-        query!(
-            r#"
-            INSERT INTO countries (id, name, capital, region, population, currency_code, 
-                                   exchange_rate, estimated_gdp, flag_url, last_refreshed_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ON DUPLICATE KEY UPDATE
-                capital = VALUES(capital),
-                region = VALUES(region),
-                population = VALUES(population),
-                currency_code = VALUES(currency_code),
-                exchange_rate = VALUES(exchange_rate),
-                estimated_gdp = VALUES(estimated_gdp),
-                flag_url = VALUES(flag_url),
-                last_refreshed_at = VALUES(last_refreshed_at)
-            "#,
-            country.id,
-            country.name,
-            country.capital,
-            country.region,
-            country.population,
-            country.currency_code,
-            country.exchange_rate,
-            country.estimated_gdp,
-            country.flag_url,
-            country.last_refreshed_at.parse::<DateTime<Utc>>().unwrap()
-        )
-        .execute(&self.pool)
-        .await?;
+    pub async fn insert_or_update(&self, countries: &[Country]) -> Result<usize, sqlx::Error> {
+        if countries.is_empty() {
+            return Ok(0);
+        }
 
-        Ok(())
+        const BATCH_SIZE: usize = 100;
+        let mut total_saved = 0;
+
+        for chunk in countries.chunks(BATCH_SIZE) {
+            let mut query_builder = QueryBuilder::new(
+                "INSERT INTO countries (id, name, capital, region, population, currency_code, 
+                exchange_rate, estimated_gdp, flag_url, last_refreshed_at)",
+            );
+
+            query_builder.push_values(chunk, |mut b, country| {
+                b.push_bind(country.id)
+                    .push_bind(&country.name)
+                    .push_bind(&country.capital)
+                    .push_bind(&country.region)
+                    .push_bind(country.population)
+                    .push_bind(&country.currency_code)
+                    .push_bind(&country.exchange_rate)
+                    .push_bind(&country.estimated_gdp)
+                    .push_bind(&country.flag_url)
+                    .push_bind(country.last_refreshed_at.parse::<DateTime<Utc>>().unwrap());
+            });
+
+            query_builder.push(
+                " ON DUPLICATE KEY UPDATE
+                        capital = VALUES(capital),
+                        region = VALUES(region),
+                        population = VALUES(population),
+                        currency_code = VALUES(currency_code),
+                        exchange_rate = VALUES(exchange_rate),
+                        estimated_gdp = VALUES(estimated_gdp),
+                        flag_url = VALUES(flag_url),
+                        last_refreshed_at = VALUES(last_refreshed_at)",
+            );
+
+            let result = query_builder.build().execute(&self.pool).await?;
+            total_saved += result.rows_affected() as usize;
+        }
+
+        Ok(total_saved)
     }
 
     pub async fn filter(&self, filters: &CountryFilters) -> Result<Vec<Country>, sqlx::Error> {
@@ -181,7 +193,6 @@ impl CountryRepository {
 
         Ok(result
             .last_refresh
-            .map(|ts|
-            ts.to_rfc3339_opts(SecondsFormat::Millis, true)))
+            .map(|ts| ts.to_rfc3339_opts(SecondsFormat::Millis, true)))
     }
 }

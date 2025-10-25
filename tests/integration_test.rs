@@ -1,4 +1,3 @@
-
 use tower::util::ServiceExt;
 
 use axum::{Router, body::Body, http::Request};
@@ -92,7 +91,7 @@ async fn test_get_countries_with_region_filter() {
 
     sqlx::query(
         "INSERT INTO countries (name, region, population, currency_code)
-         VALUES ('Nigeria', 'Africa', 206139589, 'NGN'), ('France', 'Europe', 65273511, 'EUR')"
+         VALUES ('Nigeria', 'Africa', 206139589, 'NGN'), ('France', 'Europe', 65273511, 'EUR')",
     )
     .execute(&pool)
     .await
@@ -112,7 +111,7 @@ async fn test_get_countries_with_currency_filter() {
 
     sqlx::query(
         "INSERT INTO countries (name, region, population, currency_code)
-         VALUES ('Nigeria', 'Africa', 206139589, 'NGN'), ('Ghana', 'Africa', 31072940, 'GHS')"
+         VALUES ('Nigeria', 'Africa', 206139589, 'NGN'), ('Ghana', 'Africa', 31072940, 'GHS')",
     )
     .execute(&pool)
     .await
@@ -132,7 +131,7 @@ async fn test_get_countries_with_sort_gdp_desc() {
 
     sqlx::query(
         "INSERT INTO countries (name, population, currency_code, estimated_gdp)
-         VALUES ('Country1', 1000000, 'USD', 5000000), ('Country2', 2000000, 'EUR', 10000000)"
+         VALUES ('Country1', 1000000, 'USD', 5000000), ('Country2', 2000000, 'EUR', 10000000)",
     )
     .execute(&pool)
     .await
@@ -142,7 +141,7 @@ async fn test_get_countries_with_sort_gdp_desc() {
 
     assert_eq!(status, StatusCode::OK);
     let countries = body.as_array().unwrap();
-    assert_eq!(countries[0]["name"], "Country2"); 
+    assert_eq!(countries[0]["name"], "Country2");
     assert_eq!(countries[1]["name"], "Country1");
 }
 
@@ -152,7 +151,7 @@ async fn test_get_countries_with_sort_gdp_asc() {
 
     sqlx::query(
         "INSERT INTO countries (name, population, currency_code, estimated_gdp)
-         VALUES ('Country1', 1000000, 'USD', 5000000), ('Country2', 2000000, 'EUR', 10000000)"
+         VALUES ('Country1', 1000000, 'USD', 5000000), ('Country2', 2000000, 'EUR', 10000000)",
     )
     .execute(&pool)
     .await
@@ -162,7 +161,7 @@ async fn test_get_countries_with_sort_gdp_asc() {
 
     assert_eq!(status, StatusCode::OK);
     let countries = body.as_array().unwrap();
-    assert_eq!(countries[0]["name"], "Country1"); 
+    assert_eq!(countries[0]["name"], "Country1");
     assert_eq!(countries[1]["name"], "Country2");
 }
 
@@ -175,7 +174,7 @@ async fn test_get_countries_combined_filters() {
          VALUES
          ('Nigeria', 'Africa', 206139589, 'NGN', 25000000),
          ('Ghana', 'Africa', 31072940, 'GHS', 15000000),
-         ('France', 'Europe', 65273511, 'EUR', 50000000)"
+         ('France', 'Europe', 65273511, 'EUR', 50000000)",
     )
     .execute(&pool)
     .await
@@ -187,7 +186,7 @@ async fn test_get_countries_combined_filters() {
     assert_eq!(status, StatusCode::OK);
     let countries = body.as_array().unwrap();
     assert_eq!(countries.len(), 2);
-    assert_eq!(countries[0]["name"], "Nigeria"); 
+    assert_eq!(countries[0]["name"], "Nigeria");
     assert_eq!(countries[1]["name"], "Ghana");
 }
 
@@ -197,7 +196,7 @@ async fn test_get_country_by_name_case_insensitive() {
 
     sqlx::query(
         "INSERT INTO countries (name, capital, region, population, currency_code)
-         VALUES ('Nigeria', 'Abuja', 'Africa', 206139589, 'NGN')"
+         VALUES ('Nigeria', 'Abuja', 'Africa', 206139589, 'NGN')",
     )
     .execute(&pool)
     .await
@@ -232,7 +231,7 @@ async fn test_delete_country_success() {
 
     sqlx::query(
         "INSERT INTO countries (name, population, currency_code)
-         VALUES ('TestCountry', 1000000, 'TST')"
+         VALUES ('TestCountry', 1000000, 'TST')",
     )
     .execute(&pool)
     .await
@@ -262,7 +261,7 @@ async fn test_delete_country_case_insensitive() {
 
     sqlx::query(
         "INSERT INTO countries (name, population, currency_code)
-         VALUES ('Nigeria', 206139589, 'NGN')"
+         VALUES ('Nigeria', 206139589, 'NGN')",
     )
     .execute(&pool)
     .await
@@ -307,7 +306,7 @@ async fn test_country_with_null_fields() {
 
     sqlx::query(
         "INSERT INTO countries (name, population, currency_code, exchange_rate, estimated_gdp)
-         VALUES ('TestCountry', 1000000, NULL, NULL, 0)"
+         VALUES ('TestCountry', 1000000, NULL, NULL, 0)",
     )
     .execute(&pool)
     .await
@@ -342,7 +341,7 @@ async fn test_status_after_data_inserted() {
 
     sqlx::query(
         "INSERT INTO countries (name, population, currency_code)
-         VALUES ('Country1', 1000000, 'USD'), ('Country2', 2000000, 'EUR')"
+         VALUES ('Country1', 1000000, 'USD'), ('Country2', 2000000, 'EUR')",
     )
     .execute(&pool)
     .await

@@ -21,35 +21,37 @@ pub async fn refresh_countries_task(
     exchange_rate_data: ExchangeRateResponse,
 ) -> Result<()> {
     let timestamp = Utc::now();
-    let mut saved_count = 0;
 
-    for country_data in countries_data {
-        let (currency_code, exchange_rate, estimated_gdp) = process_currency_and_gdp(
-            country_data.currencies.as_ref(),
-            country_data.population,
-            &exchange_rate_data.rates,
-        );
+    let countries = countries_data
+        .into_iter()
+        .map(|country_data| {
+            let (currency_code, exchange_rate, estimated_gdp) = process_currency_and_gdp(
+                country_data.currencies.as_ref(),
+                country_data.population,
+                &exchange_rate_data.rates,
+            );
 
-        let country = Country {
-            id: 0,
-            name: country_data.name,
-            capital: country_data.capital,
-            region: country_data.region,
-            population: country_data.population,
-            currency_code,
-            exchange_rate,
-            estimated_gdp,
-            flag_url: country_data.flag,
-            last_refreshed_at: timestamp.to_rfc3339_opts(chrono::SecondsFormat::Millis, true),
-        };
+            Country {
+                id: 0,
+                name: country_data.name,
+                capital: country_data.capital,
+                region: country_data.region,
+                population: country_data.population,
+                currency_code,
+                exchange_rate,
+                estimated_gdp,
+                flag_url: country_data.flag,
+                last_refreshed_at: timestamp.to_rfc3339_opts(chrono::SecondsFormat::Millis, true),
+            }
+        })
+        .collect::<Vec<Country>>();
 
-        if let Err(e) = repository.insert_or_update(&country).await {
-            tracing::error!("Failed to save {}: {:?}", country.name, e);
-            continue;
-        }
+    tracing::info!(
+        "Processed {} countries, starting batch insert",
+        countries.len()
+    );
 
-        saved_count += 1;
-    }
+    let saved_count = repository.insert_or_update(&countries).await?;
 
     tracing::info!("Successfully saved {} countries", saved_count);
 
@@ -114,7 +116,7 @@ async fn generate_image_after_refresh(
     let all_countries = repository.filter(&filters).await?;
     let top_5: Vec<_> = all_countries.into_iter().take(5).collect();
 
-    generate_summary_image(total, top_5, last_refresh_time)?;
+    generate_summary_image(total, top_5, last_refresh_time).await?;
 
     Ok(())
 }
