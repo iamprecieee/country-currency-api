@@ -1,4 +1,4 @@
-use bigdecimal::BigDecimal;
+
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
@@ -10,10 +10,8 @@ pub struct Country {
     pub region: Option<String>,
     pub population: i64,
     pub currency_code: Option<String>,
-    #[schema(value_type = f64, example = 1234.56)]
-    pub exchange_rate: Option<BigDecimal>,
-    #[schema(value_type = f64, example = 1234.56)]
-    pub estimated_gdp: Option<BigDecimal>,
+    pub exchange_rate: Option<f64>,    
+    pub estimated_gdp: Option<f64>,
     pub flag_url: Option<String>,
     pub last_refreshed_at: String,
 }

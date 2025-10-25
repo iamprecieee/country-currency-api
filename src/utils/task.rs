@@ -1,7 +1,6 @@
-use std::{collections::HashMap, str::FromStr};
+use std::{collections::HashMap};
 
 use anyhow::Result;
-use bigdecimal::BigDecimal;
 use chrono::{DateTime, Utc};
 use rand::random_range;
 
@@ -66,9 +65,9 @@ pub fn process_currency_and_gdp(
     currencies: Option<&Vec<Currency>>,
     population: i64,
     rates: &HashMap<String, f64>,
-) -> (Option<String>, Option<BigDecimal>, Option<BigDecimal>) {
+) -> (Option<String>, Option<f64>, Option<f64>) {
     if currencies.is_none() || currencies.unwrap().is_empty() {
-        return (None, None, Some(BigDecimal::from(0)));
+        return (None, None, Some(0.0));
     }
 
     let currencies = currencies.unwrap();
@@ -76,17 +75,15 @@ pub fn process_currency_and_gdp(
 
     let currency_code = match &first_currency.code {
         Some(code) => code.clone(),
-        None => return (None, None, Some(BigDecimal::from(0))),
+        None => return (None, None, Some(0.0)),
     };
 
     match rates.get(&currency_code) {
         Some(rate) => {
-            let exchange_rate = BigDecimal::from_str(&rate.to_string()).unwrap();
 
-            let gdp = calculate_gdp(population, *rate);
-            let estimated_gdp = gdp.map(|g| BigDecimal::from_str(&g.to_string()).unwrap());
+            let estimated_gdp = calculate_gdp(population, *rate);
 
-            (Some(currency_code), Some(exchange_rate), estimated_gdp)
+            (Some(currency_code), Some(*rate), estimated_gdp)
         }
         None => (Some(currency_code), None, None),
     }

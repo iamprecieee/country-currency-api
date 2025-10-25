@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 
-use bigdecimal::BigDecimal;
 use currency_exchange_api::utils::task::{calculate_gdp, process_currency_and_gdp};
 
 #[test]
@@ -54,7 +53,7 @@ fn test_currency_handling_empty_array() {
 
     assert!(code.is_none());
     assert!(rate.is_none());
-    assert_eq!(gdp, Some(BigDecimal::from(0)));
+    assert_eq!(gdp, Some(0.0));
 }
 
 #[test]

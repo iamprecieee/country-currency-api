@@ -1,4 +1,4 @@
-use bigdecimal::BigDecimal;
+use bigdecimal::{BigDecimal, ToPrimitive};
 use chrono::{DateTime, SecondsFormat, Utc};
 use sqlx::{QueryBuilder, query};
 
@@ -112,8 +112,8 @@ impl CountryRepository {
                 region: row.3,
                 population: row.4,
                 currency_code: row.5,
-                exchange_rate: row.6,
-                estimated_gdp: row.7,
+                exchange_rate: row.6.and_then(|bd| bd.to_f64()),
+                estimated_gdp: row.7.and_then(|bd| bd.to_f64()),
                 flag_url: row.8,
                 last_refreshed_at: row.9.to_rfc3339_opts(SecondsFormat::Millis, true),
             })
@@ -143,8 +143,8 @@ impl CountryRepository {
                 region: row.region,
                 population: row.population,
                 currency_code: row.currency_code,
-                exchange_rate: row.exchange_rate,
-                estimated_gdp: row.estimated_gdp,
+                exchange_rate: row.exchange_rate.and_then(|bd| bd.to_f64()),
+                estimated_gdp: row.estimated_gdp.and_then(|bd| bd.to_f64()),
                 flag_url: row.flag_url,
                 last_refreshed_at: row
                     .last_refreshed_at
