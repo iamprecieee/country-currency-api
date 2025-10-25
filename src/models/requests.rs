@@ -9,6 +9,6 @@ pub struct CountryFilters {
     /// Filter by currency code (e.g. "NGN")
     pub currency: Option<String>,
 
-    /// Sort by gdp value (e.g. "asc" or "desc")
+    /// Sort by gdp value (e.g. "gdp_asc" or "gdp_desc")
     pub sort: Option<String>,
 }

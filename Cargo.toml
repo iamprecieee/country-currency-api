@@ -24,6 +24,9 @@ tracing-subscriber = "0.3.20"
 utoipa = { version = "5.4.0", features = ["axum_extras"] }
 utoipa-swagger-ui = { version = "9.0.2", features = ["axum"] }
 
+[dev-dependencies]
+tokio-test = "0.4"
+tower = { version = "0.4", features = ["util"] }
 
 [[bin]]
 name = "currency_exchange_api"
@@ -31,3 +34,7 @@ name = "currency_exchange_api"
 [lib]
 name = "currency_exchange_api"
 path = "src/lib.rs"
+
+[[test]]
+name = "integration_test"
+path = "tests/integration_test.rs"

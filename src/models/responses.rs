@@ -36,7 +36,7 @@ pub struct RefreshResponse {
 #[derive(Debug, Serialize)]
 pub struct StatusResponse {
     pub total_countries: i64,
-    pub last_refreshed_at: String,
+    pub last_refreshed_at: Option<String>,
 }
 
 #[derive(Debug, Serialize, ToSchema)]

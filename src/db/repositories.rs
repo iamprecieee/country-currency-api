@@ -71,8 +71,8 @@ impl CountryRepository {
         }
 
         match filters.sort.as_deref() {
-            Some("asc") => query.push(" ORDER BY estimated_gdp ASC"),
-            Some("desc") | _ => query.push(" ORDER BY estimated_gdp DESC"),
+            Some("gdp_asc") => query.push(" ORDER BY estimated_gdp ASC"),
+            Some("gdp_desc") | _ => query.push(" ORDER BY estimated_gdp DESC"),
         };
 
         let rows = query
@@ -169,7 +169,7 @@ impl CountryRepository {
         Ok(result.count)
     }
 
-    pub async fn get_last_refresh_time(&self) -> Result<String, sqlx::Error> {
+    pub async fn get_last_refresh_time(&self) -> Result<Option<String>, sqlx::Error> {
         let result = sqlx::query!(
             r#"
             SELECT MAX(last_refreshed_at) as last_refresh
@@ -181,7 +181,7 @@ impl CountryRepository {
 
         Ok(result
             .last_refresh
-            .unwrap()
-            .to_rfc3339_opts(SecondsFormat::Millis, true))
+            .map(|ts|
+            ts.to_rfc3339_opts(SecondsFormat::Millis, true)))
     }
 }

@@ -1,12 +1,19 @@
 use axum::{
-    body::Body, extract::{Path, Query, State}, http::Response, response::IntoResponse, Json
+    Json,
+    body::Body,
+    extract::{Path, Query, State},
+    http::Response,
+    response::IntoResponse,
 };
 use reqwest::StatusCode;
-use serde_json::{json, Map, Value};
+use serde_json::json;
 
 use crate::{
     models::{
-        country::Country, requests::CountryFilters, responses::{ApiError, RefreshResponse, StatusResponse}, state::AppState
+        country::Country,
+        requests::CountryFilters,
+        responses::{ApiError, RefreshResponse, StatusResponse},
+        state::AppState,
     },
     utils::{
         countries::CountriesApiClient, exchange::ExchangeApiClient, task::refresh_countries_task,
@@ -48,9 +55,7 @@ pub async fn refresh_countries(State(state): State<AppState>) -> impl IntoRespon
             StatusCode::SERVICE_UNAVAILABLE,
             Json(ApiError::with_details(
                 "External data source unavailable".to_string(),
-                serde_json::json!({
-                    "details": "Could not fetch data from exchange rates API"
-                }),
+                "Could not fetch data from exchange rates API".into(),
             )),
         )
             .into_response();
@@ -93,23 +98,6 @@ pub async fn get_countries(
     State(state): State<AppState>,
     Query(filters): Query<CountryFilters>,
 ) -> impl IntoResponse {
-    let mut errors = Map::new();
-
-    if filters.region.is_none() {
-        errors.insert("region".into(), Value::String("is required".into()));
-    }
-    if filters.currency.is_none() {
-        errors.insert("currency".into(), Value::String("is required".into()));
-    }
-
-    if !errors.is_empty() {
-        return (
-            StatusCode::BAD_REQUEST,
-            Json(ApiError::with_details("Validation failed", Some(errors).into())),
-        )
-            .into_response();
-    }
-
     match state.repository.filter(&filters).await {
         Ok(countries) => (StatusCode::OK, Json(countries)).into_response(),
         Err(e) => {
@@ -122,7 +110,6 @@ pub async fn get_countries(
         }
     }
 }
-
 
 #[utoipa::path(
     get,
@@ -212,8 +199,7 @@ pub async fn get_status(State(state): State<AppState>) -> impl IntoResponse {
             Json(StatusResponse {
                 total_countries: count,
                 last_refreshed_at: timestamp,
-            })
-            .into_response(),
+            }),
         )
             .into_response(),
         None => (

@@ -8,8 +8,11 @@ use rand::random_range;
 use crate::{
     db::repositories::CountryRepository,
     models::{
-        country::Country, requests::CountryFilters, responses::{CountryResponse, Currency, ExchangeRateResponse}
-    }, utils::image::generate_summary_image,
+        country::Country,
+        requests::CountryFilters,
+        responses::{CountryResponse, Currency, ExchangeRateResponse},
+    },
+    utils::image::generate_summary_image,
 };
 
 pub async fn refresh_countries_task(
@@ -57,7 +60,7 @@ pub async fn refresh_countries_task(
     Ok(())
 }
 
-fn process_currency_and_gdp(
+pub fn process_currency_and_gdp(
     currencies: Option<&Vec<Currency>>,
     population: i64,
     rates: &HashMap<String, f64>,
@@ -87,7 +90,7 @@ fn process_currency_and_gdp(
     }
 }
 
-fn calculate_gdp(population: i64, exchange_rate: f64) -> Option<f64> {
+pub fn calculate_gdp(population: i64, exchange_rate: f64) -> Option<f64> {
     if exchange_rate == 0.0 {
         return None;
     }

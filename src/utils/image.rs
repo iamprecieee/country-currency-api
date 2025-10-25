@@ -1,14 +1,13 @@
 use std::fs::create_dir_all;
 
 use ab_glyph::{FontArc, PxScale};
-use anyhow::{anyhow, Result};
-use bigdecimal::{ToPrimitive};
+use anyhow::{Result, anyhow};
+use bigdecimal::ToPrimitive;
 use chrono::{DateTime, Utc};
 use image::{ImageBuffer, Rgb, RgbImage};
 use imageproc::drawing::{draw_text_mut, text_size};
 
 use crate::models::country::Country;
-
 
 pub fn generate_summary_image(
     total_countries: i64,
@@ -24,8 +23,7 @@ pub fn generate_summary_image(
 
     // Load font (using built-in font data)
     let font_data = include_bytes!("../../assets/DejaVuSans.ttf");
-    let font = FontArc::try_from_slice(font_data)
-        .map_err(|_| anyhow!("Failed to load font"))?;
+    let font = FontArc::try_from_slice(font_data).map_err(|_| anyhow!("Failed to load font"))?;
 
     let black = Rgb([0u8, 0u8, 0u8]);
 
@@ -42,7 +40,7 @@ pub fn generate_summary_image(
         y,
         title_scale,
         &font,
-        text
+        text,
     );
 
     // Total countries
@@ -51,7 +49,15 @@ pub fn generate_summary_image(
     draw_text_mut(&mut img, black, 30, 100, regular_scale, &font, &total_text);
 
     // Top 5 heading
-    draw_text_mut(&mut img, black, 30, 150, regular_scale, &font, "Top 5 by GDP:");
+    draw_text_mut(
+        &mut img,
+        black,
+        30,
+        150,
+        regular_scale,
+        &font,
+        "Top 5 by GDP:",
+    );
 
     // List top 5 countries
     for (i, country) in top_countries.iter().take(5).enumerate() {
@@ -68,9 +74,19 @@ pub fn generate_summary_image(
     }
 
     // Timestamp
-    let timestamp_text = format!("Last Updated: {}", last_refreshed.format("%Y-%m-%d %H:%M:%S UTC"));
-    draw_text_mut(&mut img, black, 30, 500, regular_scale, &font, &timestamp_text);
-
+    let timestamp_text = format!(
+        "Last Updated: {}",
+        last_refreshed.format("%Y-%m-%d %H:%M:%S UTC")
+    );
+    draw_text_mut(
+        &mut img,
+        black,
+        30,
+        500,
+        regular_scale,
+        &font,
+        &timestamp_text,
+    );
 
     img.save("cache/summary.png")?;
 
