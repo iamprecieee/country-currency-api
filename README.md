@@ -453,10 +453,10 @@ currency_exchange_api/
 │   │   └── countries.rs      # Request handlers
 │   ├── utils/
 │   │   ├── config.rs         # Environment config
-│   │   ├── countries.rs      # Countries API client
-│   │   ├── exchange.rs       # Exchange API client
+│   │   ├── countries.rs      # Country-specific utils
+│   │   ├── clients.rs        # Countries and Exchange API clients
 │   │   ├── image.rs          # Image generation
-│   │   └── task.rs           # Refresh task logic
+│   │   └── tasks.rs          # Refresh and image processing tasks logic
 │   ├── api.rs                # Router setup
 │   ├── lib.rs                # Module exports
 │   └── main.rs               # App entry point

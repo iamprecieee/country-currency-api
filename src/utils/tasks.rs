@@ -1,26 +1,22 @@
-use std::{collections::HashMap};
-
 use anyhow::Result;
 use chrono::{DateTime, Utc};
-use rand::random_range;
 
 use crate::{
     db::repositories::CountryRepository,
     models::{
         country::Country,
         requests::CountryFilters,
-        responses::{CountryResponse, Currency, ExchangeRateResponse},
+        responses::{CountryResponse, ExchangeRateResponse},
     },
-    utils::image::generate_summary_image,
+    utils::{countries::process_currency_and_gdp, image::generate_summary_image},
 };
 
 pub async fn refresh_countries_task(
     repository: CountryRepository,
     countries_data: Vec<CountryResponse>,
     exchange_rate_data: ExchangeRateResponse,
+    timestamp: DateTime<Utc>,
 ) -> Result<()> {
-    let timestamp = Utc::now();
-
     let countries = countries_data
         .into_iter()
         .map(|country_data| {
@@ -54,53 +50,11 @@ pub async fn refresh_countries_task(
 
     tracing::info!("Successfully saved {} countries", saved_count);
 
-    if let Err(e) = generate_image_after_refresh(&repository, timestamp).await {
-        tracing::error!("Failed to generate summary image: {:?}", e);
-    }
-
     Ok(())
 }
 
-pub fn process_currency_and_gdp(
-    currencies: Option<&Vec<Currency>>,
-    population: i64,
-    rates: &HashMap<String, f64>,
-) -> (Option<String>, Option<f64>, Option<f64>) {
-    if currencies.is_none() || currencies.unwrap().is_empty() {
-        return (None, None, Some(0.0));
-    }
-
-    let currencies = currencies.unwrap();
-    let first_currency = &currencies[0];
-
-    let currency_code = match &first_currency.code {
-        Some(code) => code.clone(),
-        None => return (None, None, Some(0.0)),
-    };
-
-    match rates.get(&currency_code) {
-        Some(rate) => {
-
-            let estimated_gdp = calculate_gdp(population, *rate);
-
-            (Some(currency_code), Some(*rate), estimated_gdp)
-        }
-        None => (Some(currency_code), None, None),
-    }
-}
-
-pub fn calculate_gdp(population: i64, exchange_rate: f64) -> Option<f64> {
-    if exchange_rate == 0.0 {
-        return None;
-    }
-
-    let multiplier = random_range(1000.0..=2000.0);
-
-    Some((population as f64 * multiplier) / exchange_rate)
-}
-
-async fn generate_image_after_refresh(
-    repository: &CountryRepository,
+pub async fn generate_image_task(
+    repository: CountryRepository,
     last_refresh_time: DateTime<Utc>,
 ) -> Result<()> {
     let total = repository.count().await?;

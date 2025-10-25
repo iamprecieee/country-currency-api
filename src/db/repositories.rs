@@ -155,7 +155,7 @@ impl CountryRepository {
     }
 
     pub async fn delete_by_name(&self, name: &str) -> Result<bool, sqlx::Error> {
-        let country = sqlx::query!(
+        let country = query!(
             r#"
             DELETE FROM countries
             WHERE LOWER(name) = LOWER(?)
@@ -169,7 +169,7 @@ impl CountryRepository {
     }
 
     pub async fn count(&self) -> Result<i64, sqlx::Error> {
-        let result = sqlx::query!(
+        let result = query!(
             r#"
             SELECT COUNT(*) as count
             FROM countries
@@ -182,7 +182,7 @@ impl CountryRepository {
     }
 
     pub async fn get_last_refresh_time(&self) -> Result<Option<String>, sqlx::Error> {
-        let result = sqlx::query!(
+        let result = query!(
             r#"
             SELECT MAX(last_refreshed_at) as last_refresh
             FROM countries
